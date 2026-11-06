@@ -1,0 +1,10 @@
+{
+  "domain": "database_stats",
+  "name": "Database Statistics",
+  "codeowners": ["@arnenys89"],
+  "config_flow": true,
+  "documentation": "https://github.com/arnenys89/HA-Database-Stats",
+  "iot_class": "local_polling",
+  "requirements": [],
+  "version": "1.0.0"
+}
