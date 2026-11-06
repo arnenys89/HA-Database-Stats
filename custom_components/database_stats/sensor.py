@@ -33,6 +33,7 @@ async def async_setup_entry(
     async_add_entities(
         [DatabaseStatsSensor(coordinator, entry, *description) for description in SENSORS]
         + [LastStateUpdateSensor(coordinator, entry)]
+        + [TopEntitySensor(coordinator, entry, *description) for description in TOP_ENTITY_SENSORS]
     )
 
 
@@ -113,3 +114,77 @@ class LastStateUpdateSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         return {"database_engine": self.coordinator.data.get("database_engine")}
+
+
+
+TOP_ENTITY_SENSORS = [
+    (
+        "top_event_entity",
+        "Entity with most event entries",
+        "top_event_entity",
+        "top_event_count",
+        "event entries",
+    ),
+    (
+        "top_state_entity",
+        "Entity with most state entries",
+        "top_state_entity",
+        "top_state_count",
+        "state entries",
+    ),
+    (
+        "top_memory_entity",
+        "Entity with largest stored payload",
+        "top_memory_entity",
+        "top_memory_bytes",
+        "bytes",
+    ),
+]
+
+
+class TopEntitySensor(CoordinatorEntity, SensorEntity):
+    """Show the entity ranked first for a Recorder database metric."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator, entry, key, name, value_key, metric_key, metric_label):
+        super().__init__(coordinator)
+        self._value_key = value_key
+        self._metric_key = metric_key
+        self._metric_label = metric_label
+        self._attr_unique_id = f"{entry.entry_id}_{key}"
+        self._attr_name = name
+        self._attr_icon = (
+            "mdi:calendar-alert" if key == "top_event_entity"
+            else "mdi:database-search" if key == "top_state_entity"
+            else "mdi:memory"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Database Statistics",
+            manufacturer="Home Assistant",
+            model="Recorder database monitor",
+        )
+
+    @property
+    def native_value(self):
+        return self.coordinator.data.get(self._value_key) or "Unknown"
+
+    @property
+    def extra_state_attributes(self):
+        data = self.coordinator.data
+        attrs = {
+            "metric": self._metric_label,
+            "value": data.get(self._metric_key, 0),
+        }
+        if self._value_key == "top_memory_entity":
+            attrs["estimated_payload_mb"] = round(
+                data.get(self._metric_key, 0) / (1024 * 1024), 3
+            )
+            attrs["state_entries"] = data.get("top_memory_states", 0)
+            attrs["calculation"] = (
+                "Estimated sum of state text and referenced shared attributes; "
+                "not physical database page allocation."
+            )
+        return attrs
