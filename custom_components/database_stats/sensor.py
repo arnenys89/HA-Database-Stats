@@ -7,7 +7,6 @@ import logging
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfInformation
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import EntityCategory
@@ -46,6 +45,12 @@ class DatabaseStatsSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, entry, key, name, data_key, unit, state_class):
         super().__init__(coordinator)
         self._data_key = data_key
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Database Statistics",
+            manufacturer="Home Assistant",
+            model="Recorder database monitor",
+        )
         self._attr_unique_id = f"{entry.entry_id}_{key}"
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
@@ -86,6 +91,12 @@ class LastStateUpdateSensor(CoordinatorEntity, SensorEntity):
 
     def __init__(self, coordinator, entry):
         super().__init__(coordinator)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Database Statistics",
+            manufacturer="Home Assistant",
+            model="Recorder database monitor",
+        )
         self._attr_unique_id = f"{entry.entry_id}_last_state_update"
 
     @property
