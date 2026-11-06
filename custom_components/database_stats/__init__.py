@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.components.recorder import get_instance
 
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
@@ -30,6 +30,7 @@ def _read_database_stats(engine) -> dict:
         "entities": None,
         "statistics": None,
         "last_state_update": None,
+        "database_engine": engine.dialect.name,
     }
 
     # Count only known Recorder tables; identifiers come from this fixed allow-list.
