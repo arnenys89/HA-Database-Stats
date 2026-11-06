@@ -98,7 +98,8 @@ def _top_entity_queries(connection, engine, tables: set[str]) -> dict:
             elif engine.dialect.name in ("mysql", "mariadb"):
                 entity_expr = func.json_unquote(func.json_extract(events.c.event_data, "$.entity_id"))
             elif engine.dialect.name == "postgresql":
-                entity_expr = cast(events.c.event_data, text("JSONB")).op("->>")("entity_id")
+                from sqlalchemy.dialects.postgresql import JSONB
+                entity_expr = cast(events.c.event_data, JSONB).op("->>")("entity_id")
             else:
                 entity_expr = None
 
