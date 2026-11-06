@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Database-statistieken",
+        "description": "Volg de statistieken van de Home Assistant Recorder-database."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Er kan slechts één exemplaar worden toegevoegd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Updatefrequentie",
+        "data": {
+          "scan_interval": "Verversingsinterval (minuten)"
+        }
+      }
+    }
+  }
+}
